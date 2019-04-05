@@ -1,4 +1,4 @@
-class Autorizador {
+class Autorizador(uidsConocidos: List<String>) {
 
 
 }

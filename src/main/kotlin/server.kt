@@ -1,48 +1,60 @@
-import com.fasterxml.jackson.databind.DeserializationFeature.*
-import com.fasterxml.jackson.module.kotlin.KotlinModule
+import am.ik.yavi.core.ConstraintViolations
+import am.ik.yavi.core.Validator
+import am.ik.yavi.core.constraint
 import org.http4k.core.Body
 import org.http4k.core.Method.GET
 import org.http4k.core.Method.POST
 import org.http4k.core.Response
+import org.http4k.core.Status.Companion.BAD_REQUEST
 import org.http4k.core.Status.Companion.OK
 import org.http4k.core.with
-import org.http4k.format.ConfigurableJackson
+import org.http4k.format.Jackson.asJsonObject
 import org.http4k.format.Jackson.auto
-import org.http4k.format.asConfigurable
-import org.http4k.format.withStandardMappings
-import org.http4k.lens.BiDiBodyLens
+import org.http4k.format.Jackson.json
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
 
-object Jackson2 : ConfigurableJackson(
-    KotlinModule()
-        .asConfigurable()
-        .withStandardMappings()
-        .done()
-        .disableDefaultTyping()
-        .configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
-        .configure(FAIL_ON_IGNORED_PROPERTIES, false)
-        .configure(USE_BIG_DECIMAL_FOR_FLOATS, true)
-        .configure(USE_BIG_INTEGER_FOR_INTS, true)
-        .configure(FAIL_ON_NULL_FOR_PRIMITIVES, true)
-)
-
 fun main() {
 
-    val autorizador = Autorizador()
+    val uidsConocidos = listOf("foo", "bar")
+    val nuevaAutorizacionLens = Body.auto<NuevaAutorizacion>().toLens()
+    val respuestaDeAutorizacion = Body.auto<RespuestaDeAutorizacion>().toLens()
 
     val app = routes(
         "ping" bind GET to { Response(OK).body("pong") },
         "autorizar" bind POST to { request ->
-            val bodyLens: BiDiBodyLens<Foo> = Body.auto<Foo>().toLens()
-            Response(OK).with(
-                bodyLens of bodyLens(request)
-            )
+
+            val nuevaAutorizacion = nuevaAutorizacionLens(request)
+            val validationResult = NuevaAutorizacion.validator.validate(nuevaAutorizacion)
+
+            if (validationResult.isValid) {
+                Response(OK).with(
+                    respuestaDeAutorizacion of validar(nuevaAutorizacion, uidsConocidos)
+                )
+            } else {
+                Response(BAD_REQUEST).with(
+                    Body.json().toLens() of mapOf("errors" to validationResult.validationMessages()).asJsonObject()
+                )
+            }
         }
     )
     app.asServer(Jetty(9000)).start()
 }
 
-data class Foo(val edad: Int?)
+private fun ConstraintViolations.validationMessages() = violations().map { it.message() }
+
+fun validar(nuevaAutorizacion: NuevaAutorizacion, uidsConocidos: List<String>) =
+    RespuestaDeAutorizacion(uidsConocidos.contains(nuevaAutorizacion.uid))
+
+
+data class RespuestaDeAutorizacion(val estaAutorizado: Boolean)
+
+data class NuevaAutorizacion(val uid: String?) {
+    companion object {
+        val validator: Validator<NuevaAutorizacion> = Validator.builder<NuevaAutorizacion>()
+            .constraint(NuevaAutorizacion::uid) { notNull().fixedSize(8) }
+            .build()
+    }
+}
