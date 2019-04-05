@@ -16,9 +16,13 @@ import org.http4k.routing.routes
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
 
+typealias Autorizados = Map<String, List<String>>
+
 fun main() {
 
-    val uidsConocidos = listOf("foo", "bar")
+    val autorizados = mapOf(
+        "erwin" to listOf("54:11:48:88", "04:67:72:b2:8f:48:80")
+    )
     val nuevaAutorizacionLens = Body.auto<NuevaAutorizacion>().toLens()
     val respuestaDeAutorizacion = Body.auto<RespuestaDeAutorizacion>().toLens()
 
@@ -31,7 +35,7 @@ fun main() {
 
             if (validationResult.isValid) {
                 Response(OK).with(
-                    respuestaDeAutorizacion of validar(nuevaAutorizacion, uidsConocidos)
+                    respuestaDeAutorizacion of validar(nuevaAutorizacion, autorizados)
                 )
             } else {
                 Response(BAD_REQUEST).with(
@@ -45,8 +49,12 @@ fun main() {
 
 private fun ConstraintViolations.validationMessages() = violations().map { it.message() }
 
-fun validar(nuevaAutorizacion: NuevaAutorizacion, uidsConocidos: List<String>) =
-    RespuestaDeAutorizacion(uidsConocidos.contains(nuevaAutorizacion.uid))
+fun validar(nuevaAutorizacion: NuevaAutorizacion, autorizados: Autorizados) =
+    RespuestaDeAutorizacion(autorizados.conoce(nuevaAutorizacion))
+
+private fun Autorizados.conoce(nuevaAutorizacion: NuevaAutorizacion): Boolean {
+    
+}
 
 
 data class RespuestaDeAutorizacion(val estaAutorizado: Boolean)
