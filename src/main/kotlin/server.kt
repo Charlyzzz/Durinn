@@ -44,25 +44,23 @@ fun main() {
             }
         }
     )
-    app.asServer(Jetty(9000)).start()
+    app.asServer(Jetty(9001)).start()
 }
 
 private fun ConstraintViolations.validationMessages() = violations().map { it.message() }
 
-fun validar(nuevaAutorizacion: NuevaAutorizacion, autorizados: Autorizados) =
-    RespuestaDeAutorizacion(autorizados.conoce(nuevaAutorizacion))
-
-private fun Autorizados.conoce(nuevaAutorizacion: NuevaAutorizacion): Boolean {
-    
+fun validar(nuevaAutorizacion: NuevaAutorizacion, autorizados: Autorizados): RespuestaDeAutorizacion {
+    val autorizado = autorizados.entries.find { it.value.contains(nuevaAutorizacion.uid) }
+    return autorizado?.let { RespuestaDeAutorizacion(estaAutorizado = true, nombre = it.key) }
+        ?: RespuestaDeAutorizacion(estaAutorizado = false)
 }
 
-
-data class RespuestaDeAutorizacion(val estaAutorizado: Boolean)
+data class RespuestaDeAutorizacion(val estaAutorizado: Boolean, val nombre: String? = null)
 
 data class NuevaAutorizacion(val uid: String?) {
     companion object {
         val validator: Validator<NuevaAutorizacion> = Validator.builder<NuevaAutorizacion>()
-            .constraint(NuevaAutorizacion::uid) { notNull().fixedSize(8) }
+            .constraint(NuevaAutorizacion::uid) { notNull() }
             .build()
     }
 }
