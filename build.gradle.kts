@@ -1,7 +1,5 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    kotlin("jvm") version "1.3.21"
+    kotlin("jvm") version "1.3.30"
 }
 
 group = "com.10pines.kotlin-greenhouse"
@@ -9,6 +7,9 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven {
+        setUrl("https://dl.bintray.com/konform-kt/konform")
+    }
 }
 
 dependencies {
@@ -16,9 +17,5 @@ dependencies {
     implementation("org.http4k", "http4k-core", "3.130.0")
     implementation("org.http4k", "http4k-server-jetty", "3.130.0")
     implementation("org.http4k", "http4k-format-jackson", "3.130.0")
-    implementation("am.ik.yavi", "yavi", "0.0.23")
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+    implementation("io.konform:konform:0.1.0")
 }

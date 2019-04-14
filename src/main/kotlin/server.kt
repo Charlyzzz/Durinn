@@ -1,6 +1,6 @@
-import am.ik.yavi.core.ConstraintViolations
-import am.ik.yavi.core.Validator
-import am.ik.yavi.core.constraint
+import io.konform.validation.Invalid
+import io.konform.validation.Valid
+import io.konform.validation.Validation
 import org.http4k.core.Body
 import org.http4k.core.Method.GET
 import org.http4k.core.Method.POST
@@ -31,23 +31,20 @@ fun main() {
         "autorizar" bind POST to { request ->
 
             val nuevaAutorizacion = nuevaAutorizacionLens(request)
-            val validationResult = NuevaAutorizacion.validator.validate(nuevaAutorizacion)
+            val validationResult = NuevaAutorizacion.validator(nuevaAutorizacion)
 
-            if (validationResult.isValid) {
-                Response(OK).with(
+            when (validationResult) {
+                is Valid -> Response(OK).with(
                     respuestaDeAutorizacion of validar(nuevaAutorizacion, autorizados)
                 )
-            } else {
-                Response(BAD_REQUEST).with(
-                    Body.json().toLens() of mapOf("errors" to validationResult.validationMessages()).asJsonObject()
+                is Invalid -> Response(BAD_REQUEST).with(
+                    Body.json().toLens() of mapOf("errors" to validationResult.errors()).asJsonObject()
                 )
             }
         }
     )
     app.asServer(Jetty(9001)).start()
 }
-
-private fun ConstraintViolations.validationMessages() = violations().map { it.message() }
 
 fun validar(nuevaAutorizacion: NuevaAutorizacion, autorizados: Autorizados): RespuestaDeAutorizacion {
     val autorizado = autorizados.entries.find { it.value.contains(nuevaAutorizacion.uid) }
@@ -59,8 +56,10 @@ data class RespuestaDeAutorizacion(val estaAutorizado: Boolean, val nombre: Stri
 
 data class NuevaAutorizacion(val uid: String?) {
     companion object {
-        val validator: Validator<NuevaAutorizacion> = Validator.builder<NuevaAutorizacion>()
-            .constraint(NuevaAutorizacion::uid) { notNull() }
-            .build()
+        val validator = Validation<NuevaAutorizacion> {
+            NuevaAutorizacion::uid required {
+                notBlank()
+            }
+        }
     }
 }
