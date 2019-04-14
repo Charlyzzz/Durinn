@@ -1,4 +1,6 @@
-import io.konform.validation.*
+import io.konform.validation.Constraint
+import io.konform.validation.Invalid
+import io.konform.validation.ValidationBuilder
 
 fun ValidationBuilder<String>.notBlank(): Constraint<String> {
     return addConstraint(
@@ -13,5 +15,3 @@ fun <T> Invalid<T>.errors(nameInterpolator: String = "."): Map<String, List<Stri
     val failedValidations = errorsField.get(this) as Map<List<String>, List<String>>
     return failedValidations.mapKeysTo(mutableMapOf()) { it.key.joinToString(nameInterpolator) }.toMap()
 }
-
-fun <T> ValidationResult<T>.isValid(): Boolean = this is Valid
