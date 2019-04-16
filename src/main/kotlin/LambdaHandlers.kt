@@ -16,9 +16,9 @@ object PingHandler : AppLoader {
 
 object AuthorizationHandler : AppLoader {
 
-    private val nuevaAutorizacionLens = Body.auto<NuevaAutorizacion>().toLens()
-    private val respuestaDeAutorizacion = Body.auto<RespuestaDeAutorizacion>().toLens()
-    private val autorizados = mapOf(
+    private val newAuthorizationLens = Body.auto<AuthorizationAttempt>().toLens()
+    private val authorizationResultLens = Body.auto<AuthenticationResult>().toLens()
+    private val authorizedUsers = mapOf(
         "erwin" to listOf("54:11:48:88", "04:67:72:b2:8f:48:80"),
         "joel" to listOf("d2:07:c4:b8"),
         "eze" to listOf("a0:c6:eb:49"),
@@ -29,12 +29,11 @@ object AuthorizationHandler : AppLoader {
         "ailu" to listOf("8f:c2:9f:39")
     )
 
-
     override fun invoke(env: Map<String, String>): HttpHandler = ServerFilters.CatchLensFailure.then {
-        val nuevaAutorizacion = nuevaAutorizacionLens(it)
-        when (val validationResult = NuevaAutorizacion.validator(nuevaAutorizacion)) {
+        val newAuthorizationAttempt = newAuthorizationLens(it)
+        when (val validationResult = AuthorizationAttempt.validate(newAuthorizationAttempt)) {
             is Valid -> Response(OK).with(
-                respuestaDeAutorizacion of validar(nuevaAutorizacion, autorizados)
+                authorizationResultLens of validate(newAuthorizationAttempt, authorizedUsers)
             )
             is Invalid -> Response(Status.BAD_REQUEST).with(
                 Body.json().toLens() of mapOf("errors" to validationResult.errors()).asJsonObject()
