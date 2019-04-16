@@ -1,0 +1,37 @@
+service: durinn
+
+provider:
+  name: aws
+  runtime: java8
+  stage: dev
+  region: us-west-2
+  stackTags:
+    Owner: Erwin
+  deploymentBucket:
+    name: edebusschere-durinn-lambda-test
+    tags:
+      Owner: Erwin
+  apiName: durinn
+  endpointType: regional
+
+package:
+  artifact: build/libs/durinn-1.0-SNAPSHOT-all.jar
+
+functions:
+  ping:
+    handler: org.http4k.serverless.lambda.LambdaFunction::handle
+    description: Basic healthcheck endpoint. Returns pong
+    environment:
+      HTTP4K_BOOTSTRAP_CLASS: PingHandler
+    events:
+      - http:
+          path: /ping
+          method: GET
+  authorize:
+    handler: org.http4k.serverless.lambda.LambdaFunction::handle
+    environment:
+      HTTP4K_BOOTSTRAP_CLASS: AuthorizationHandler
+    events:
+      - http:
+          path: /authorize
+          method: POST
