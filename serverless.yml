@@ -19,7 +19,6 @@ package:
 
 functions:
   ping:
-    role: arn:aws:iam::528784232475:role/service-role/durinn-ping-handler-role-m6c2ewqn
     handler: org.http4k.serverless.lambda.LambdaFunction::handle
     description: Basic healthcheck endpoint. Returns pong
     environment:
@@ -29,7 +28,6 @@ functions:
           path: /ping
           method: GET
   authorize:
-    role: arn:aws:iam::528784232475:role/service-role/durinn-authorization-handler-role-e3ecc3vf
     handler: org.http4k.serverless.lambda.LambdaFunction::handle
     environment:
       HTTP4K_BOOTSTRAP_CLASS: AuthorizationHandler
