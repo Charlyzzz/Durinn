@@ -18,9 +18,15 @@ object AuthorizationHandler : AppLoader {
 
     val nuevaAutorizacionLens = Body.auto<NuevaAutorizacion>().toLens()
     private val respuestaDeAutorizacion = Body.auto<RespuestaDeAutorizacion>().toLens()
-    private val autorizados = mapOf(
-        "erwin" to listOf("54:11:48:88", "04:67:72:b2:8f:48:80")
+    val autorizados = mapOf(
+        "erwin" to listOf("54:11:48:88", "04:67:72:b2:8f:48:80"),
+        "joel" to listOf("d2:07:c4:b8"),
+        "eze" to listOf("a0:c6:eb:49"),
+        "pabloB" to listOf("0:0b:91:79"),
+        "seryo" to listOf("04:50:47:8a:55:5a:80"),
+        "gastonT" to listOf("42:8f:f0:dc")
     )
+
 
     override fun invoke(env: Map<String, String>): HttpHandler = ServerFilters.CatchLensFailure.then {
         val nuevaAutorizacion = nuevaAutorizacionLens(it)
