@@ -16,15 +16,17 @@ object PingHandler : AppLoader {
 
 object AuthorizationHandler : AppLoader {
 
-    val nuevaAutorizacionLens = Body.auto<NuevaAutorizacion>().toLens()
+    private val nuevaAutorizacionLens = Body.auto<NuevaAutorizacion>().toLens()
     private val respuestaDeAutorizacion = Body.auto<RespuestaDeAutorizacion>().toLens()
-    val autorizados = mapOf(
+    private val autorizados = mapOf(
         "erwin" to listOf("54:11:48:88", "04:67:72:b2:8f:48:80"),
         "joel" to listOf("d2:07:c4:b8"),
         "eze" to listOf("a0:c6:eb:49"),
         "pabloB" to listOf("0:0b:91:79"),
         "seryo" to listOf("04:50:47:8a:55:5a:80"),
-        "gastonT" to listOf("42:8f:f0:dc")
+        "gastonT" to listOf("42:8f:f0:dc"),
+        "lucas" to listOf("0f:1e:09:52"),
+        "ailu" to listOf("8f:c2:9f:39")
     )
 
 
