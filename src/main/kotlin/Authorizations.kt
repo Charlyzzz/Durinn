@@ -1,11 +1,9 @@
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.regions.Regions
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
-import com.amazonaws.services.dynamodbv2.datamodeling.*
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable
 import io.konform.validation.Validation
 
 typealias AuthorizedUsers = Map<String, List<String>>
-typealias Validator = (String?) -> AuthenticationResult
+typealias Validator = (AuthorizationAttempt) -> AuthenticationResult
 
 fun validate(authorizationAttempt: AuthorizationAttempt, authorizedUsers: AuthorizedUsers): AuthenticationResult {
     val authorizedUser = authorizedUsers.entries.find { it.value.contains(authorizationAttempt.uid) }
