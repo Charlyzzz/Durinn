@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -23,8 +24,7 @@ dependencies {
     implementation("org.http4k", "http4k-serverless-lambda", "3.133.0")
     implementation("io.konform", "konform", "0.1.0")
     implementation("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.535")
-
-
+    
     testImplementation("junit", "junit", "4.12")
     testImplementation("com.willowtreeapps.assertk", "assertk", "0.10")
 }
