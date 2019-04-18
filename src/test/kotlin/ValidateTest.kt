@@ -5,7 +5,7 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import org.junit.Test
 
-class ValidarTest {
+class ValidateTest {
 
     @Test
     fun `returns true and the name when the UID exists`() {
