@@ -1,3 +1,7 @@
+import com.amazonaws.regions.Regions
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTableMapper
 import io.konform.validation.Invalid
 import io.konform.validation.Valid
 import org.http4k.core.*
@@ -18,7 +22,25 @@ object AuthorizationHandler : AppLoader {
 
     private val newAuthorizationLens = Body.auto<AuthorizationAttempt>().toLens()
     private val authorizationResultLens = Body.auto<AuthenticationResult>().toLens()
-    private val authorizedUsers = mapOf(
+    private val validator: Validator
+
+    init {
+        val client = AmazonDynamoDBClientBuilder.standard()
+            .withRegion(Regions.US_WEST_2)
+            .build()
+
+        val mapper: DynamoDBTableMapper<TrusteeDocument, String, Any> =
+            DynamoDBMapper(client).newTableMapper(TrusteeDocument::class.java)
+
+        validator = { deviceId ->
+            val foundTrustee: Trustee? = mapper.load(deviceId)?.toModel()
+            foundTrustee?.let {
+                AuthenticationResult(isAuthorized = true, name = it.name)
+            } ?: AuthenticationResult(isAuthorized = false)
+        }
+    }
+
+    val authorizedUsers = mapOf(
         "erwin" to listOf("54:11:48:88", "04:67:72:b2:8f:48:80"),
         "joel" to listOf("d2:07:c4:b8"),
         "eze" to listOf("a0:c6:eb:49"),
@@ -32,9 +54,12 @@ object AuthorizationHandler : AppLoader {
     override fun invoke(env: Map<String, String>): HttpHandler = ServerFilters.CatchLensFailure.then {
         val newAuthorizationAttempt = newAuthorizationLens(it)
         when (val validationResult = AuthorizationAttempt.validate(newAuthorizationAttempt)) {
-            is Valid -> Response(OK).with(
-                authorizationResultLens of validate(newAuthorizationAttempt, authorizedUsers)
-            )
+            is Valid -> {
+                println(validator(newAuthorizationAttempt.uid))
+                Response(OK).with(
+                    authorizationResultLens of validate(newAuthorizationAttempt, authorizedUsers)
+                )
+            }
             is Invalid -> Response(Status.BAD_REQUEST).with(
                 Body.json().toLens() of mapOf("errors" to validationResult.errors()).asJsonObject()
             )
