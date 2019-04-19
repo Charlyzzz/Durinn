@@ -1,17 +1,11 @@
+import com.amazonaws.regions.Regions
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable
 import io.konform.validation.Validation
 
-typealias AuthorizedUsers = Map<String, List<String>>
-typealias Validator = (AuthorizationAttempt) -> AuthenticationResult
-
-fun validate(authorizationAttempt: AuthorizationAttempt, authorizedUsers: AuthorizedUsers): AuthenticationResult {
-    val authorizedUser = authorizedUsers.entries.find { it.value.contains(authorizationAttempt.uid) }
-    return authorizedUser?.let { AuthenticationResult(isAuthorized = true, name = it.key) }
-        ?: AuthenticationResult(isAuthorized = false)
-}
-
-data class AuthenticationResult(val isAuthorized: Boolean, val name: String? = null)
+data class AuthenticationResult(val authorized: Boolean, val name: String? = null)
 
 data class AuthorizationAttempt(val uid: String?) {
     companion object {
@@ -21,6 +15,34 @@ data class AuthorizationAttempt(val uid: String?) {
             }
         }
     }
+}
+
+class DynamoDbTrusteeByDeviceIdFinder : TrusteeByDeviceIdFinder {
+
+    private val dbMapper: DynamoDBMapper
+
+    init {
+        val client = AmazonDynamoDBClientBuilder.standard()
+            .withRegion(Regions.US_WEST_2)
+            .build()
+        dbMapper = DynamoDBMapper(client)
+    }
+
+    override fun invoke(deviceId: String?): Trustee? {
+        return dbMapper.load(TrusteeDocument::class.java, deviceId)?.toModel()
+    }
+}
+
+typealias TrusteeByDeviceIdFinder = (String?) -> Trustee?
+
+fun validateAuthentication(
+    findByDeviceId: TrusteeByDeviceIdFinder,
+    authorizationAttempt: AuthorizationAttempt
+): AuthenticationResult {
+    val foundTrustee = findByDeviceId(authorizationAttempt.uid)
+    return foundTrustee?.let {
+        AuthenticationResult(authorized = true, name = it.name)
+    } ?: AuthenticationResult(authorized = false)
 }
 
 data class Trustee(
