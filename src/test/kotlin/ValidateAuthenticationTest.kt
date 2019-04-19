@@ -12,7 +12,7 @@ class ValidateTest {
         val autorizados = mapOf(
             "jose" to listOf("some-uid")
         )
-        val (estaAutorizado, nombre) = validate(AuthorizationAttempt("some-uid"), autorizados)
+        val (estaAutorizado, nombre) = validator(AuthorizationAttempt("some-uid"), autorizados)
         assert(estaAutorizado).isTrue()
         assert(nombre).isEqualTo("jose")
     }
@@ -22,7 +22,7 @@ class ValidateTest {
         val autorizados = mapOf(
             "jose" to listOf("some-uid")
         )
-        val (estaAutorizado, nombre) = validate(AuthorizationAttempt("other-uid"), autorizados)
+        val (estaAutorizado, nombre) = validator(AuthorizationAttempt("other-uid"), autorizados)
         assert(estaAutorizado).isFalse()
         assert(nombre).isNull()
     }

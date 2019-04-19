@@ -15,3 +15,5 @@ fun <T> Invalid<T>.errors(nameInterpolator: String = "."): Map<String, List<Stri
     val failedValidations = errorsField.get(this) as Map<List<String>, List<String>>
     return failedValidations.mapKeysTo(mutableMapOf()) { it.key.joinToString(nameInterpolator) }.toMap()
 }
+
+typealias Errors = Map<String, List<String>>
