@@ -18,7 +18,6 @@ class AuthorizationHandler(
     env: Map<String, String> = System.getenv()
 ) : ApiGatewayProxyHandler(env) {
 
-
     override fun invoke(env: Map<String, String>): HttpHandler = ServerFilters.CatchLensFailure.then {
         val newAuthorizationAttempt = newAuthorizationLens(it)
         when (val validationResult = AuthorizationAttempt.validate(newAuthorizationAttempt)) {
