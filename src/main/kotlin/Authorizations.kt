@@ -39,8 +39,7 @@ fun validateAuthentication(
     findByDeviceId: TrusteeByDeviceIdFinder,
     authorizationAttempt: AuthorizationAttempt
 ): AuthenticationResult {
-    val foundTrustee = findByDeviceId(authorizationAttempt.uid)
-    return foundTrustee?.let {
+    return findByDeviceId(authorizationAttempt.uid)?.let {
         AuthenticationResult(authorized = true, name = it.name)
     } ?: AuthenticationResult(authorized = false)
 }

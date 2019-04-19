@@ -16,4 +16,4 @@ fun <T> Invalid<T>.errors(nameInterpolator: String = "."): Map<String, List<Stri
     return failedValidations.mapKeysTo(mutableMapOf()) { it.key.joinToString(nameInterpolator) }.toMap()
 }
 
-typealias Errors = Map<String, List<String>>
+typealias Errors = Map<String, Map<String, List<String>>>
