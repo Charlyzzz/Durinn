@@ -1,14 +1,15 @@
-import assertk.assert
-import assertk.assertions.isEqualTo
+import com.natpryce.hamkrest.and
+import com.natpryce.hamkrest.assertion.assertThat
+import org.http4k.core.Status.Companion.OK
+import org.http4k.hamkrest.hasBody
+import org.http4k.hamkrest.hasStatus
 import org.junit.Test
 
 class PingHandlerTest {
 
     @Test
     fun `returns ping when called`() {
-        val lambda = PingHandler()
-        val response = lambda()
-        assert(response.body).isEqualTo("pong")
-        assert(response.statusCode).isEqualTo(200)
+        val response = handlePing(Request())
+        assertThat(response, hasStatus(OK) and hasBody("pong"))
     }
 }
