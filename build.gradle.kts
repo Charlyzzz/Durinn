@@ -17,7 +17,7 @@ repositories {
 
 dependencies {
     val http4kVersion = "3.137.1"
-    
+
     implementation(kotlin("stdlib-jdk8"))
 
     implementation("org.http4k", "http4k-core", http4kVersion)
