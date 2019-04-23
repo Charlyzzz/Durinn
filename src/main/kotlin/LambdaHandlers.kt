@@ -5,11 +5,7 @@ object PingHandler : AppLoader {
 }
 
 object AuthorizationHandler : AppLoader {
-    private val deviceIdFinderInDynamo: TrusteeByDeviceIdFinder
+    private val byIdFinder: TrusteeByDeviceIdFinder = CouchDbTrusteeByDeviceIdFinder()
 
-    init {
-        deviceIdFinderInDynamo = DynamoDbTrusteeByDeviceIdFinder()
-    }
-
-    override fun invoke(env: Map<String, String>) = handleAuthorizationAttempt(deviceIdFinderInDynamo)
+    override fun invoke(env: Map<String, String>) = handleAuthorizationRequest(byIdFinder)
 }

@@ -13,12 +13,11 @@ import org.http4k.hamkrest.hasContentType
 import org.http4k.hamkrest.hasStatus
 import org.junit.Test
 
-
-class AuthorizationAttemptTest {
+class HandleAuthorizationAttemptTest {
 
     @Test
     fun `returns 400 with no body`() {
-        val lambda = handleAuthorizationAttempt { TODO() }
+        val lambda = handleAuthorizationRequest { TODO() }
         val response = lambda(Request())
 
         assertThat(response, hasStatus(BAD_REQUEST))
@@ -27,7 +26,7 @@ class AuthorizationAttemptTest {
 
     @Test
     fun `returns 400 when body is empty`() {
-        val lambda = handleAuthorizationAttempt { TODO() }
+        val lambda = handleAuthorizationRequest { TODO() }
         val response = lambda(Request().body("{}"))
 
         val errors = errorsLens(response).getValue("errors")
@@ -39,7 +38,7 @@ class AuthorizationAttemptTest {
 
     @Test
     fun `returns 400 when device id is blank`() {
-        val lambda = handleAuthorizationAttempt { TODO() }
+        val lambda = handleAuthorizationRequest { TODO() }
         val response = lambda(Request().body("""{"uid": ""}"""))
 
         val errors = errorsLens(response).getValue("errors")
@@ -51,12 +50,12 @@ class AuthorizationAttemptTest {
     @Test
     fun `returns 200 and result when device id is found`() {
         val returnJoseWhenIdMatch: TrusteeByDeviceIdFinder = {
-            when (it!!) {
+            when (it) {
                 "a77a1" -> Trustee(it, "jose")
                 else -> null
             }
         }
-        val lambda = handleAuthorizationAttempt(returnJoseWhenIdMatch)
+        val lambda = handleAuthorizationRequest(returnJoseWhenIdMatch)
         val response = lambda(Request().body("""{"uid": "a77a1"}"""))
 
         val expectedResult = AuthenticationResult(authorized = true, name = "jose")

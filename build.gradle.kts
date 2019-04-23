@@ -21,10 +21,10 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
     implementation("org.http4k", "http4k-core", http4kVersion)
+    implementation("org.http4k", "http4k-client-apache", http4kVersion)
     implementation("org.http4k", "http4k-format-jackson", http4kVersion)
     implementation("org.http4k", "http4k-serverless-lambda", http4kVersion)
     implementation("io.konform", "konform", "0.1.0")
-    implementation("com.amazonaws", "aws-java-sdk-dynamodb", "1.11.535")
 
     testImplementation("junit", "junit", "4.12")
     testImplementation("com.willowtreeapps.assertk", "assertk", "0.10")

@@ -6,15 +6,16 @@ import org.http4k.format.Jackson.asJsonObject
 import org.http4k.format.Jackson.auto
 import org.http4k.format.Jackson.json
 
-fun handleAuthorizationAttempt(findDeviceById: TrusteeByDeviceIdFinder) = ServerFilters.CatchLensFailure.then {
-    val newAuthorizationLens = Body.auto<AuthorizationAttempt>().toLens()
+fun handleAuthorizationRequest(findDeviceById: TrusteeByDeviceIdFinder) = ServerFilters.CatchLensFailure.then {
+    val newAuthorizationLens = Body.auto<AuthorizationRequest>().toLens()
     val authorizationResultLens = Body.auto<AuthenticationResult>().toLens()
-    val newAuthorizationAttempt = newAuthorizationLens(it)
+    val authorizationRequest = newAuthorizationLens(it)
 
-    when (val validationResult = AuthorizationAttempt.validate(newAuthorizationAttempt)) {
+    when (val validationResult = AuthorizationRequest.validate(authorizationRequest)) {
         is Valid -> {
+            val authorizationAttempt = authorizationRequest.toModel()
             Response(Status.OK).with(
-                authorizationResultLens of validateAuthentication(findDeviceById, newAuthorizationAttempt)
+                authorizationResultLens of validateAuthentication(findDeviceById, authorizationAttempt)
             )
         }
         is Invalid -> Response(Status.BAD_REQUEST).with(
