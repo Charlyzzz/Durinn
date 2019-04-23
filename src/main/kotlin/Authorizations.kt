@@ -31,7 +31,7 @@ class CouchDbTrusteeByDeviceIdFinder : TrusteeByDeviceIdFinder {
         val request = Request(Method.GET, queryURI + quotingQuery("key", deviceId))
         val response = httpClient(request)
         val queryResults = queryResultLens(response).rows
-        if (queryResults.size != 1) throw RuntimeException("""Multiple devices registered with DeviceId: $deviceId""")
+        if (queryResults.size > 1) throw RuntimeException("""Multiple devices registered with DeviceId: $deviceId""")
         return queryResults.firstOrNull()?.let { Trustee(it.deviceId, it.name) }
     }
 }
