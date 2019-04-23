@@ -6,6 +6,7 @@ object PingHandler : AppLoader {
 
 object AuthorizationHandler : AppLoader {
     private val byIdFinder: TrusteeByDeviceIdFinder = CouchDbTrusteeByDeviceIdFinder()
+    private val accessReporter: AccessReporter = CouchDbAccessReporter()
 
-    override fun invoke(env: Map<String, String>) = handleAuthorizationRequest(byIdFinder)
+    override fun invoke(env: Map<String, String>) = handleAuthorizationRequest(byIdFinder, accessReporter)
 }

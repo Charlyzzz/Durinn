@@ -1,0 +1,30 @@
+import org.http4k.client.ApacheClient
+import org.http4k.core.Body
+import org.http4k.core.Method.POST
+import org.http4k.core.Request
+import org.http4k.core.with
+import org.http4k.format.Jackson.auto
+import java.time.ZonedDateTime
+
+typealias AccessReporter = (AccessAttemp) -> Unit
+
+class CouchDbAccessReporter : AccessReporter {
+
+    private val httpClient = ApacheClient()
+    private val insertURI = "http://52.13.54.86:5984/access"
+    private val accessAttemptLens = Body.auto<AccessAttemp>().toLens()
+
+    override fun invoke(accessAttemp: AccessAttemp) {
+        val request = Request(POST, insertURI).with(
+            accessAttemptLens of accessAttemp
+        )
+        httpClient(request)
+    }
+}
+
+data class AccessAttemp(
+    val deviceId: String,
+    val authorized: Boolean,
+    val timestamp: ZonedDateTime,
+    val name: String?
+)

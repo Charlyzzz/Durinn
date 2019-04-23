@@ -17,8 +17,8 @@ class HandleAuthorizationAttemptTest {
 
     @Test
     fun `returns 400 with no body`() {
-        val lambda = handleAuthorizationRequest { TODO() }
-        val response = lambda(Request())
+        val handler = handleAuthorizationRequest({ TODO() }, { })
+        val response = handler(Request())
 
         assertThat(response, hasStatus(BAD_REQUEST))
         assertThat(response, hasEmptyBody)
@@ -26,8 +26,8 @@ class HandleAuthorizationAttemptTest {
 
     @Test
     fun `returns 400 when body is empty`() {
-        val lambda = handleAuthorizationRequest { TODO() }
-        val response = lambda(Request().body("{}"))
+        val handler = handleAuthorizationRequest({ TODO() }, { })
+        val response = handler(Request().body("{}"))
 
         val errors = errorsLens(response).getValue("errors")
 
@@ -35,11 +35,10 @@ class HandleAuthorizationAttemptTest {
         assertThat(response, hasStatus(BAD_REQUEST) and hasContentType(APPLICATION_JSON))
     }
 
-
     @Test
     fun `returns 400 when device id is blank`() {
-        val lambda = handleAuthorizationRequest { TODO() }
-        val response = lambda(Request().body("""{"uid": ""}"""))
+        val handler = handleAuthorizationRequest({ TODO() }, { })
+        val response = handler(Request().body("""{"uid": ""}"""))
 
         val errors = errorsLens(response).getValue("errors")
 
@@ -55,8 +54,8 @@ class HandleAuthorizationAttemptTest {
                 else -> null
             }
         }
-        val lambda = handleAuthorizationRequest(returnJoseWhenIdMatch)
-        val response = lambda(Request().body("""{"uid": "a77a1"}"""))
+        val handler = handleAuthorizationRequest(returnJoseWhenIdMatch, {})
+        val response = handler(Request().body("""{"uid": "a77a1"}"""))
 
         val expectedResult = AuthenticationResult(authorized = true, name = "jose")
 
