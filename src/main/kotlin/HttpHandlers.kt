@@ -20,7 +20,7 @@ fun handleAuthorizationRequest(
         is Valid -> {
             val authorizationAttempt = authorizationRequest.toModel()
             val authenticationResult = validateAuthentication(findDeviceById, authorizationAttempt)
-            val accessAttempt = AccessAttemp(
+            val accessAttempt = AccessAttempt(
                 deviceId = authorizationAttempt.deviceId,
                 authorized = authenticationResult.authorized,
                 timestamp = ZonedDateTime.now(ZoneId.of("UTC-3")),

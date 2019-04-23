@@ -6,23 +6,23 @@ import org.http4k.core.with
 import org.http4k.format.Jackson.auto
 import java.time.ZonedDateTime
 
-typealias AccessReporter = (AccessAttemp) -> Unit
+typealias AccessReporter = (AccessAttempt) -> Unit
 
 class CouchDbAccessReporter : AccessReporter {
 
     private val httpClient = ApacheClient()
     private val insertURI = "http://52.13.54.86:5984/access"
-    private val accessAttemptLens = Body.auto<AccessAttemp>().toLens()
+    private val accessAttemptLens = Body.auto<AccessAttempt>().toLens()
 
-    override fun invoke(accessAttemp: AccessAttemp) {
+    override fun invoke(accessAttempt: AccessAttempt) {
         val request = Request(POST, insertURI).with(
-            accessAttemptLens of accessAttemp
+            accessAttemptLens of accessAttempt
         )
         httpClient(request)
     }
 }
 
-data class AccessAttemp(
+data class AccessAttempt(
     val deviceId: String,
     val authorized: Boolean,
     val timestamp: ZonedDateTime,

@@ -1,6 +1,5 @@
 import com.fasterxml.jackson.annotation.JsonProperty
 
-
 data class TrusteeByDeviceViewResult(
     @JsonProperty("total_rows")
     val totalRows: Int,
