@@ -11,7 +11,7 @@ import java.time.ZonedDateTime
 fun handleAuthorizationRequest(
     findDeviceById: TrusteeByDeviceIdFinder,
     accessReporter: AccessReporter
-) = ServerFilters.CatchLensFailure.then {
+) = WarmUpFilter.then(ServerFilters.CatchLensFailure).then {
     val newAuthorizationLens = Body.auto<AuthorizationRequest>().toLens()
     val authorizationResultLens = Body.auto<AuthenticationResult>().toLens()
     val authorizationRequest = newAuthorizationLens(it)
@@ -37,6 +37,6 @@ fun handleAuthorizationRequest(
     }
 }
 
-val handlePing: HttpHandler = {
+val handlePing: HttpHandler = WarmUpFilter.then {
     Response(Status.OK).body("pong")
 }

@@ -62,6 +62,13 @@ class HandleAuthorizationAttemptTest {
         assertThat(response, hasBody(authenticationResultLens, equalTo(expectedResult)))
         assertThat(response, hasStatus(OK) and hasContentType(APPLICATION_JSON))
     }
+
+    @Test
+    fun `can be warmed up`() {
+        val handler = handleAuthorizationRequest({ TODO() }, { })
+        val response = handler(WarmUpRequest)
+        assertThat(response, isFromWarmUp)
+    }
 }
 
 val errorsLens = Body.auto<Errors>().toLens()

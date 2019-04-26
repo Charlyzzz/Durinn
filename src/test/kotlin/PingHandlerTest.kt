@@ -12,4 +12,10 @@ class PingHandlerTest {
         val response = handlePing(Request())
         assertThat(response, hasStatus(OK) and hasBody("pong"))
     }
+
+    @Test
+    fun `can be warmed up`() {
+        val response = handlePing(WarmUpRequest)
+        assertThat(response, isFromWarmUp)
+    }
 }
