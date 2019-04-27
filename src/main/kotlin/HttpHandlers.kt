@@ -1,10 +1,12 @@
 import io.konform.validation.Invalid
 import io.konform.validation.Valid
 import org.http4k.core.*
+import org.http4k.core.ContentType.Companion.TEXT_PLAIN
 import org.http4k.filter.ServerFilters
 import org.http4k.format.Jackson.asJsonObject
 import org.http4k.format.Jackson.auto
 import org.http4k.format.Jackson.json
+import org.http4k.lens.Header.CONTENT_TYPE
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
@@ -38,5 +40,5 @@ fun handleAuthorizationRequest(
 }
 
 val handlePing: HttpHandler = WarmUpFilter.then {
-    Response(Status.OK).body("pong")
+    Response(Status.OK).body("pong").with(CONTENT_TYPE of TEXT_PLAIN)
 }
