@@ -13,6 +13,7 @@ provider:
       Owner: Erwin
   apiName: durinn
   endpointType: regional
+  timeout: 10
   memorySize: 256
 
 package:
