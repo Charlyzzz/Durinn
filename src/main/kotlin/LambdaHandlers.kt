@@ -5,8 +5,11 @@ object PingHandler : AppLoader {
 }
 
 object AuthorizationHandler : AppLoader {
-    private val byIdFinder: TrusteeByDeviceIdFinder = CouchDbTrusteeByDeviceIdFinder()
-    private val accessReporter: AccessReporter = CouchDbAccessReporter()
+    private val authorizer = AuthorizerWithAccessLogging(
+        trusteeAuthorizer(finder = CouchTrusteeDeviceFinder()),
+        CouchAccessReporter(RealClock)
+    )
 
-    override fun invoke(env: Map<String, String>) = handleAuthorizationRequest(byIdFinder, accessReporter)
+    override fun invoke(env: Map<String, String>) = handleAuthorizationRequest(authorizer)
 }
+

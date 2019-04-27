@@ -17,7 +17,7 @@ class HandleAuthorizationAttemptTest {
 
     @Test
     fun `returns 400 with no body`() {
-        val handler = handleAuthorizationRequest({ TODO() }, { })
+        val handler = handleAuthorizationRequest { TODO() }
         val response = handler(Request())
 
         assertThat(response, hasStatus(BAD_REQUEST))
@@ -26,7 +26,7 @@ class HandleAuthorizationAttemptTest {
 
     @Test
     fun `returns 400 when body is empty`() {
-        val handler = handleAuthorizationRequest({ TODO() }, { })
+        val handler = handleAuthorizationRequest { TODO() }
         val response = handler(Request().body("{}"))
 
         val errors = errorsLens(response).getValue("errors")
@@ -37,7 +37,7 @@ class HandleAuthorizationAttemptTest {
 
     @Test
     fun `returns 400 when device id is blank`() {
-        val handler = handleAuthorizationRequest({ TODO() }, { })
+        val handler = handleAuthorizationRequest { TODO() }
         val response = handler(Request().body("""{"uid": ""}"""))
 
         val errors = errorsLens(response).getValue("errors")
@@ -48,16 +48,16 @@ class HandleAuthorizationAttemptTest {
 
     @Test
     fun `returns 200 and result when device id is found`() {
-        val returnJoseWhenIdMatch: TrusteeByDeviceIdFinder = {
+        val authorizer = trusteeAuthorizer {
             when (it) {
                 "a77a1" -> Trustee(it, "jose")
                 else -> null
             }
         }
-        val handler = handleAuthorizationRequest(returnJoseWhenIdMatch, {})
+        val handler = handleAuthorizationRequest(authorizer)
         val response = handler(Request().body("""{"uid": "a77a1"}"""))
 
-        val expectedResult = AuthenticationResult(authorized = true, name = "jose")
+        val expectedResult = AuthorizationResult(authorized = true, name = "jose")
 
         assertThat(response, hasBody(authenticationResultLens, equalTo(expectedResult)))
         assertThat(response, hasStatus(OK) and hasContentType(APPLICATION_JSON))
@@ -65,11 +65,11 @@ class HandleAuthorizationAttemptTest {
 
     @Test
     fun `can be warmed up`() {
-        val handler = handleAuthorizationRequest({ TODO() }, { })
+        val handler = handleAuthorizationRequest { TODO() }
         val response = handler(WarmUpRequest)
         assertThat(response, isFromWarmUp)
     }
 }
 
 val errorsLens = Body.auto<Errors>().toLens()
-val authenticationResultLens = Body.auto<AuthenticationResult>().toLens()
+val authenticationResultLens = Body.auto<AuthorizationResult>().toLens()

@@ -5,8 +5,6 @@ import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.format.Jackson.auto
 
-data class AuthenticationResult(val authorized: Boolean, val name: String? = null)
-
 data class AuthorizationRequest(val uid: String?) {
     companion object {
         val validate = Validation<AuthorizationRequest> {
@@ -19,9 +17,24 @@ data class AuthorizationRequest(val uid: String?) {
 
 fun AuthorizationRequest.toModel() = AuthorizationAttempt(uid!!)
 
+data class AuthorizationResult(val authorized: Boolean, val name: String? = null)
+
 data class AuthorizationAttempt(val deviceId: String)
 
-class CouchDbTrusteeByDeviceIdFinder : TrusteeByDeviceIdFinder {
+class AuthorizerWithAccessLogging(
+    private val authorizationFinder: Authorizer,
+    private val accessReporter: AccessReporter
+) : Authorizer {
+    override fun invoke(authorizationAttempt: AuthorizationAttempt): AuthorizationResult {
+        val authorizationResult = authorizationFinder(authorizationAttempt)
+        accessReporter(authorizationAttempt, authorizationResult)
+        return authorizationResult
+    }
+}
+
+typealias DeviceFinder = (String) -> Trustee?
+
+class CouchTrusteeDeviceFinder : DeviceFinder {
 
     private val httpClient = ApacheClient()
     private val queryURI = "http://52.13.54.86:5984/trustees/_design/trustees/_view/byDevice"
@@ -36,15 +49,11 @@ class CouchDbTrusteeByDeviceIdFinder : TrusteeByDeviceIdFinder {
     }
 }
 
-typealias TrusteeByDeviceIdFinder = (String) -> Trustee?
+typealias Authorizer = (AuthorizationAttempt) -> AuthorizationResult
 
-fun validateAuthentication(
-    findByDeviceId: TrusteeByDeviceIdFinder,
-    authorizationAttempt: AuthorizationAttempt
-): AuthenticationResult {
-    return findByDeviceId(authorizationAttempt.deviceId)?.let {
-        AuthenticationResult(authorized = true, name = it.name)
-    } ?: AuthenticationResult(authorized = false)
+fun trusteeAuthorizer(finder: DeviceFinder): Authorizer = { (deviceId) ->
+    finder(deviceId)?.let { AuthorizationResult(authorized = true, name = it.name) }
+        ?: AuthorizationResult(authorized = false)
 }
 
 data class Trustee(
