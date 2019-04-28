@@ -13,8 +13,6 @@ provider:
       Owner: Erwin
   apiName: durinn
   endpointType: regional
-  timeout: 10
-  memorySize: 512
 
 package:
   artifact: build/libs/durinn-1.0-SNAPSHOT-all.jar
