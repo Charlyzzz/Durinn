@@ -3,6 +3,7 @@ import assertk.assertions.contains
 import com.natpryce.hamkrest.and
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
+import org.http4k.client.ApacheClient
 import org.http4k.core.Body
 import org.http4k.core.ContentType.Companion.APPLICATION_JSON
 import org.http4k.core.Status.Companion.BAD_REQUEST
@@ -73,3 +74,19 @@ class HandleAuthorizationAttemptTest {
 
 val errorsLens = Body.auto<Errors>().toLens()
 val authenticationResultLens = Body.auto<AuthorizationResult>().toLens()
+
+fun main() {
+    bench { Body.auto<AuthorizationResult>().toLens() }
+    bench { ApacheClient() }
+}
+
+fun bench(block: () -> Unit) {
+    val times = mutableListOf<Long>()
+    repeat(10000) {
+        val i = System.currentTimeMillis()
+        block()
+        val f = System.currentTimeMillis()
+        times.add(f - i)
+    }
+    println("A: ${times.average()}, M: ${times.max()}, m: ${times.min()}")
+}

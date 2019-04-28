@@ -8,11 +8,14 @@ import org.http4k.format.Jackson.auto
 import org.http4k.format.Jackson.json
 import org.http4k.lens.Header.CONTENT_TYPE
 
-fun handleAuthorizationRequest(authorizer: Authorizer) = WarmUpFilter.then(ServerFilters.CatchLensFailure).then {
+fun handleAuthorizationRequest(authorizer: Authorizer) = WarmUpFilter { println("Lambda warmed")} .then(ServerFilters.CatchLensFailure).then {
+    println("pre lenses")
     val newAuthorizationLens = Body.auto<AuthorizationRequest>().toLens()
     val authorizationResultLens = Body.auto<AuthorizationResult>().toLens()
+    println("post lenses")
+    println("pre serialization 1")
     val authorizationRequest = newAuthorizationLens(it)
-
+    println("post serialization 1")
     when (val validationResult = AuthorizationRequest.validate(authorizationRequest)) {
         is Valid -> {
             val authorizationAttempt = authorizationRequest.toModel()
