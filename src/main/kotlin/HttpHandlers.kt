@@ -8,26 +8,23 @@ import org.http4k.format.Gson.auto
 import org.http4k.format.Gson.json
 import org.http4k.lens.Header.CONTENT_TYPE
 
-fun handleAuthorizationRequest(authorizer: Authorizer) = WarmUpFilter { println("Lambda warmed")} .then(ServerFilters.CatchLensFailure).then {
-    println("pre lenses")
-    val newAuthorizationLens = Body.auto<AuthorizationRequest>().toLens()
-    val authorizationResultLens = Body.auto<AuthorizationResult>().toLens()
-    println("post lenses")
-    println("pre serialization 1")
-    val authorizationRequest = newAuthorizationLens(it)
-    println("post serialization 1")
-    when (val validationResult = AuthorizationRequest.validate(authorizationRequest)) {
-        is Valid -> {
-            val authorizationAttempt = authorizationRequest.toModel()
-            Response(Status.OK).with(
-                authorizationResultLens of authorizer(authorizationAttempt)
+fun handleAuthorizationRequest(authorizer: Authorizer) =
+    WarmUpFilter { println("Lambda warmed") }.then(ServerFilters.CatchLensFailure).then {
+        val newAuthorizationLens = Body.auto<AuthorizationRequest>().toLens()
+        val authorizationResultLens = Body.auto<AuthorizationResult>().toLens()
+        val authorizationRequest = newAuthorizationLens(it)
+        when (val validationResult = AuthorizationRequest.validate(authorizationRequest)) {
+            is Valid -> {
+                val authorizationAttempt = authorizationRequest.toModel()
+                Response(Status.OK).with(
+                    authorizationResultLens of authorizer(authorizationAttempt)
+                )
+            }
+            is Invalid -> Response(Status.BAD_REQUEST).with(
+                Body.json().toLens() of mapOf("errors" to validationResult.errors()).asJsonObject()
             )
         }
-        is Invalid -> Response(Status.BAD_REQUEST).with(
-            Body.json().toLens() of mapOf("errors" to validationResult.errors()).asJsonObject()
-        )
     }
-}
 
 val handlePing: HttpHandler = WarmUpFilter.then {
     Response(Status.OK).body("pong").with(CONTENT_TYPE of TEXT_PLAIN)

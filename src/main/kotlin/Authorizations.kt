@@ -42,12 +42,8 @@ class CouchTrusteeDeviceFinder : DeviceFinder {
 
     override fun invoke(deviceId: String): Trustee? {
         val request = Request(Method.GET, queryURI + quotingQuery("key", deviceId))
-        println("pre finder request")
         val response = httpClient(request)
-        println("post finder request")
-        println("pre rows")
         val queryResults = queryResultLens(response).rows
-        println("post rows")
         if (queryResults.size > 1) throw RuntimeException("""Multiple devices registered with DeviceId: $deviceId""")
         return queryResults.firstOrNull()?.let { Trustee(it.deviceId, it.name) }
     }
