@@ -3,7 +3,7 @@ import org.http4k.core.Body
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.with
-import org.http4k.format.Jackson.auto
+import org.http4k.format.Gson.auto
 import java.time.ZonedDateTime
 
 typealias AccessReporter = (AuthorizationAttempt, AuthorizationResult) -> Unit

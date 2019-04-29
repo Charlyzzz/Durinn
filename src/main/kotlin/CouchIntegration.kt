@@ -1,7 +1,7 @@
-import com.fasterxml.jackson.annotation.JsonProperty
+import com.google.gson.annotations.SerializedName
 
 data class TrusteeByDeviceViewResult(
-    @JsonProperty("total_rows")
+    @SerializedName("total_rows")
     val totalRows: Int,
     val offset: Int,
     val rows: List<TrusteeByDevice>
@@ -9,9 +9,9 @@ data class TrusteeByDeviceViewResult(
 
 data class TrusteeByDevice(
     val id: String,
-    @JsonProperty("key")
+    @SerializedName("key")
     val deviceId: String,
-    @JsonProperty("value")
+    @SerializedName("value")
     val name: String
 )
 

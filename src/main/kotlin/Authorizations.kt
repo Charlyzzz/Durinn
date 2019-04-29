@@ -3,7 +3,7 @@ import org.http4k.client.ApacheClient
 import org.http4k.core.Body
 import org.http4k.core.Method
 import org.http4k.core.Request
-import org.http4k.format.Jackson.auto
+import org.http4k.format.Gson.auto
 
 data class AuthorizationRequest(val uid: String?) {
     companion object {

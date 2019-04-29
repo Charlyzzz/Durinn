@@ -3,9 +3,9 @@ import io.konform.validation.Valid
 import org.http4k.core.*
 import org.http4k.core.ContentType.Companion.TEXT_PLAIN
 import org.http4k.filter.ServerFilters
-import org.http4k.format.Jackson.asJsonObject
-import org.http4k.format.Jackson.auto
-import org.http4k.format.Jackson.json
+import org.http4k.format.Gson.asJsonObject
+import org.http4k.format.Gson.auto
+import org.http4k.format.Gson.json
 import org.http4k.lens.Header.CONTENT_TYPE
 
 fun handleAuthorizationRequest(authorizer: Authorizer) = WarmUpFilter { println("Lambda warmed")} .then(ServerFilters.CatchLensFailure).then {

@@ -22,7 +22,7 @@ dependencies {
 
     implementation("org.http4k", "http4k-core", http4kVersion)
     implementation("org.http4k", "http4k-client-apache", http4kVersion)
-    implementation("org.http4k", "http4k-format-jackson", http4kVersion)
+    implementation("org.http4k", "http4k-format-gson", http4kVersion)
     implementation("org.http4k", "http4k-serverless-lambda", http4kVersion)
     implementation("io.konform", "konform", "0.1.0")
 
