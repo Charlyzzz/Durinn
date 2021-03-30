@@ -8,10 +8,10 @@ import java.time.ZonedDateTime
 
 typealias AccessReporter = (AuthorizationAttempt, AuthorizationResult) -> Unit
 
-class CouchAccessReporter(private val clock: Clock) : AccessReporter {
+class CouchAccessReporter(private val dbURL: String, private val clock: Clock) : AccessReporter {
 
     private val httpClient = ApacheClient()
-    private val insertURI = "http://52.13.54.86:5984/access"
+    private val insertURI = "$dbURL/access"
     private val accessAttemptLens = Body.auto<AccessAttempt>().toLens()
 
     override fun invoke(authorizationAttempt: AuthorizationAttempt, authorizationResult: AuthorizationResult) {

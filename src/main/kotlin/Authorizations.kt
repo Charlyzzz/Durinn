@@ -34,10 +34,10 @@ class AuthorizerWithAccessLogging(
 
 typealias DeviceFinder = (String) -> Trustee?
 
-class CouchTrusteeDeviceFinder : DeviceFinder {
+class CouchTrusteeDeviceFinder(val dbURL: String) : DeviceFinder {
 
     private val httpClient = ApacheClient()
-    private val queryURI = "http://52.13.54.86:5984/trustees/_design/trustees/_view/byDevice"
+    private val queryURI = "$dbURL/trustees/_design/trustees/_view/byDevice"
     private val queryResultLens = Body.auto<TrusteeByDeviceViewResult>().toLens()
 
     override fun invoke(deviceId: String): Trustee? {

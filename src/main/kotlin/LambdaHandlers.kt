@@ -1,3 +1,4 @@
+import org.http4k.core.HttpHandler
 import org.http4k.serverless.AppLoader
 
 object PingHandler : AppLoader {
@@ -6,11 +7,16 @@ object PingHandler : AppLoader {
 
 object AuthorizationHandler : AppLoader {
 
-    private val authorizer = AuthorizerWithAccessLogging(
-        trusteeAuthorizer(finder = CouchTrusteeDeviceFinder()),
-        CouchAccessReporter(RealClock)
-    )
+    override fun invoke(env: Map<String, String>): HttpHandler {
 
-    override fun invoke(env: Map<String, String>) = handleAuthorizationRequest(authorizer)
+        val dbURL = env["COUCH_URL"] ?: error("COUCH_URL is missing")
+
+        val authorizer = AuthorizerWithAccessLogging(
+            trusteeAuthorizer(finder = CouchTrusteeDeviceFinder(dbURL)),
+            CouchAccessReporter(dbURL, RealClock)
+        )
+
+        return handleAuthorizationRequest(authorizer)
+    }
 }
 
